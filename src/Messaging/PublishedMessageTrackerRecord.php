@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEven\Messaging;
+namespace Tanigami\DomainEvent\Messaging;
 
 class PublishedMessageTrackerRecord
 {
