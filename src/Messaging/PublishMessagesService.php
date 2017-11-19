@@ -3,7 +3,6 @@
 namespace Tanigami\DomainEvent\Messaging;
 
 use JMS\Serializer\Serializer;
-use Tanigami\DomainEven\Messaging\PublishedMessageTrackerRecord;
 use Tanigami\DomainEvent\EventStore;
 use Tanigami\DomainEvent\StoredEvent;
 
