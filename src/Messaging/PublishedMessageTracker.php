@@ -2,7 +2,6 @@
 
 namespace Tanigami\DomainEvent\Messaging;
 
-use Tanigami\DomainEven\Messaging\PublishedMessageTrackerRecord;
 use Tanigami\DomainEvent\StoredEvent;
 
 interface PublishedMessageTracker
