@@ -40,18 +40,10 @@ class SqsPublishMessagesService extends PublishMessagesService
     {
         $this->sqsClient->sendMessage([
             'MessageAttributes' => [
-                "Title" => [
+                "Type" => [
                     'DataType' => "String",
-                    'StringValue' => "The Hitchhiker's Guide to the Galaxy"
+                    'StringValue' => $storedEvent->name(),
                 ],
-                "Author" => [
-                    'DataType' => "String",
-                    'StringValue' => "Douglas Adams."
-                ],
-                "WeeksOn" => [
-                    'DataType' => "Number",
-                    'StringValue' => "6"
-                ]
             ],
             'MessageBody' => $storedEvent->body(),
             'QueueUrl' => $exchangeName
