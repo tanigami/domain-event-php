@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEvent\Amqp;
+namespace Tanigami\DomainEvent\Messaging\Amqp;
 
 use DateTimeImmutable;
 

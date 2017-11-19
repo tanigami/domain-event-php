@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEvent\Amqp;
+namespace Tanigami\DomainEvent\Messageing\Amqp;
 
 use JMS\Serializer\Serializer;
 use Tanigami\DomainEvent\EventStore;
