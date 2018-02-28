@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
 use Mockery;
 use PHPUnit\Framework\TestCase;

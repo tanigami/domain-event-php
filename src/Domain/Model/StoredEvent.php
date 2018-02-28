@@ -1,15 +1,15 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
 use DateTimeImmutable;
 
-class StoredEvent extends DomainEvent
+class StoredEvent
 {
     /**
      * @var int|null
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
@@ -22,21 +22,26 @@ class StoredEvent extends DomainEvent
     private $body;
 
     /**
+     * @var DateTimeImmutable
+     */
+    private $occurredAt;
+
+    /**
      * @param string $name
      * @param string $body
      * @param DateTimeImmutable $occurredAt
      */
     public function __construct(string $name, string $body, DateTimeImmutable $occurredAt)
     {
-        parent::__construct($occurredAt);
         $this->name = $name;
         $this->body = $body;
+        $this->occurredAt = $occurredAt;
     }
 
     /**
      * @return int|null
      */
-    public function id()
+    public function id(): ?int
     {
         return $this->id;
     }
@@ -55,5 +60,13 @@ class StoredEvent extends DomainEvent
     public function body(): string
     {
         return $this->body;
+    }
+
+    /**
+     * @return DateTimeImmutable
+     */
+    public function occurredAt(): DateTimeImmutable
+    {
+        return $this->occurredAt;
     }
 }

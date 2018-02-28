@@ -1,7 +1,10 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
+/**
+ * OK
+ */
 interface DomainEventSubscriber
 {
     /**

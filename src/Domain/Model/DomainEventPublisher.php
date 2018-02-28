@@ -1,31 +1,26 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
+/**
+ * OK
+ */
 class DomainEventPublisher
 {
     /**
      * @var DomainEventSubscriber[]
      */
-    private $subscribers;
+    private $subscribers = [];
 
     /**
-     * @var null|DomainEventPublisher
+     * @var null|self
      */
-    private static $instance;
+    private static $instance = null;
 
     /**
      * @var int
      */
-    private $id = 0;
-
-    /**
-     * @return void
-     */
-    private function __construct()
-    {
-        $this->subscribers = [];
-    }
+    private $nextSubscriberId = 1;
 
     /**
      * @return self
@@ -45,9 +40,9 @@ class DomainEventPublisher
      */
     public function subscribe(DomainEventSubscriber $domainEventSubscriber): int
     {
-        $id = $this->id;
+        $id = $this->nextSubscriberId;
         $this->subscribers[$id] = $domainEventSubscriber;
-        $this->id = $id + 1;
+        $this->nextSubscriberId = $this->nextSubscriberId + 1;
 
         return $id;
     }
@@ -56,7 +51,7 @@ class DomainEventPublisher
      * @param int $id
      * @return null|DomainEventSubscriber
      */
-    public function ofId(int $id)
+    public function subscriberOfId(int $id): ?DomainEventSubscriber
     {
         return $this->subscribers[$id] ?? null;
     }

@@ -21,7 +21,16 @@
     },
     "require": {
         "jms/serializer": "^1.9",
-        "aws/aws-sdk-php": "^3.38"
+        "aws/aws-sdk-php": "^3.38",
+        "php-amqplib/php-amqplib": "^2.7",
+        "react/event-loop": "^0.4.3",
+        "symfony/yaml": "^3.4",
+        "enqueue/amqp-lib": "^0.8.21",
+        "enqueue/sqs": "^0.8.21",
+        "doctrine/cache": "^1.7",
+        "enqueue/stomp": "^0.8.21",
+        "enqueue/null": "^0.8.21",
+        "doctrine/orm": "^2.6"
     },
     "require-dev": {
         "mockery/mockery": "^1.0",

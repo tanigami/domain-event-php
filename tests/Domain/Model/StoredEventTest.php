@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;

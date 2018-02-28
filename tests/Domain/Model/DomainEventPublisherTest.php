@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
 
@@ -66,39 +66,4 @@ class DomainEventPublisherTest extends TestCase
     {
         DomainEventPublisher::instance()->unsubscribe($id);
     }
-}
-
-class SpySubscriber implements DomainEventSubscriber
-{
-    public $domainEvent;
-    public $isHandled = false;
-    private $eventName;
-
-    public function __construct(string $eventName)
-    {
-        $this->eventName = $eventName;
-    }
-
-    public function isSubscribedTo(DomainEvent $aDomainEvent): bool
-    {
-        return $this->eventName === $aDomainEvent->name;
-    }
-
-    public function handle(DomainEvent $aDomainEvent): void
-    {
-        $this->domainEvent = $aDomainEvent;
-        $this->isHandled = true;
-    }
-}
-
-class FakeDomainEvent extends DomainEvent
-{
-    public $name;
-
-    public function __construct($name)
-    {
-        $this->name = $name;
-    }
-
-    public function occurredOn() {}
 }

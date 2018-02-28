@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanigami\DomainEvent;
+namespace Tanigami\DomainEvent\Domain\Model;
 
 use DateTimeImmutable;
 
@@ -12,14 +12,11 @@ abstract class DomainEvent
     protected $occurredAt;
 
     /**
-     * @param DateTimeImmutable $occurredAt
+     * @return void
      */
-    public function __construct(DateTimeImmutable $occurredAt = null)
+    public function __construct()
     {
-        if (null === $occurredAt) {
-            $occurredAt = new DateTimeImmutable;
-        }
-        $this->occurredAt = $occurredAt;
+        $this->occurredAt = new DateTimeImmutable;
     }
 
     /**

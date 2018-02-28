@@ -1,0 +1,9 @@
+Tanigami\DomainEvent\StoredEvent:
+    exclusion_policy: NONE
+    properties:
+        name:
+            type: string
+        body:
+            type: string
+        occurredAt:
+            type: DateTimeImmutable

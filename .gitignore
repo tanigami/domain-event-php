@@ -1,4 +1,7 @@
 /build/
 /vendor/
 /composer.lock
-/phpunit.xml
+/phpunit.xml.dist
+/read.php
+/test.php
+/produce.php
