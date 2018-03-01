@@ -160,7 +160,7 @@ class EnqueueStoredEventsService
             $this->serializer =
                 SerializerBuilder::create()
                     ->addMetadataDir(__DIR__.'/../../Infrastructure/Serialization/JMS/Config')
-                    ->setCacheDir(__DIR__ . '/../../../var/cache/jms-serializer')
+                    ->setCacheDir(__DIR__.'/../../../var/cache/jms-serializer')
                     ->build();
         }
 
