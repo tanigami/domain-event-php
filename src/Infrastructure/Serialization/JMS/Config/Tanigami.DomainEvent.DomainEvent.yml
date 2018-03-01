@@ -1,5 +1,0 @@
-Tanigami\DomainEvent\DomainEvent:
-    exclusion_policy: NONE
-    properties:
-        occurredAt:
-            type: DateTimeImmutable

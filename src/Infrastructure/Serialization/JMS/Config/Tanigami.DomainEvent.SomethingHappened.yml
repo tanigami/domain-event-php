@@ -1,5 +1,0 @@
-Tanigami\DomainEvent\SomethingHappened:
-    exclusion_policy: NONE
-    properties:
-        whatHappened:
-            type: string
