@@ -15,7 +15,7 @@ class DomainEventPublisher
     /**
      * @var null|self
      */
-    private static $instance = null;
+    protected static $instance = null;
 
     /**
      * @var int
