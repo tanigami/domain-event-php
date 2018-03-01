@@ -2,15 +2,15 @@
 
 namespace Tanigami\DomainEvent\Application\Service;
 
-use Exception;
 use Interop\Queue\PsrContext;
 use Interop\Queue\PsrMessage;
+use Interop\Queue\PsrProducer;
 use Interop\Queue\PsrTopic;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
 use Tanigami\DomainEvent\Domain\Model\EventStore;
 use Tanigami\DomainEvent\Domain\Model\FailedToEnqueueStoredEventException;
-use Tanigami\DomainEvent\Domain\Model\PublishedStoredEventTrackerStore;
+use Tanigami\DomainEvent\Domain\Model\EnqueuedStoredEventTrackerStore;
 use Tanigami\DomainEvent\Domain\Model\StoredEvent;
 
 
@@ -22,9 +22,9 @@ class EnqueueStoredEventsService
     protected $eventStore;
 
     /**
-     * @var PublishedStoredEventTrackerStore
+     * @var EnqueuedStoredEventTrackerStore
      */
-    protected $publishedStoredEventTrackerStore;
+    protected $enqueuedStoredEventTrackerStore;
 
     /**
      * @var PsrContext
@@ -39,51 +39,95 @@ class EnqueueStoredEventsService
     /**
      * @param PsrContext $context
      * @param EventStore $eventStore
-     * @param PublishedStoredEventTrackerStore $publishedStoredEventTrackerStore
+     * @param EnqueuedStoredEventTrackerStore $enqueuedStoredEventTrackerStore
      */
     public function __construct(
         PsrContext $context,
         EventStore $eventStore,
-        PublishedStoredEventTrackerStore $publishedStoredEventTrackerStore
+        EnqueuedStoredEventTrackerStore $enqueuedStoredEventTrackerStore
     ) {
         $this->context = $context;
         $this->eventStore = $eventStore;
-        $this->publishedStoredEventTrackerStore = $publishedStoredEventTrackerStore;
+        $this->enqueuedStoredEventTrackerStore = $enqueuedStoredEventTrackerStore;
+    }
+
+    /**
+     * @param string $topicName
+     * @return int
+     * @throws FailedToEnqueueStoredEventException
+     */
+    public function execute(string $topicName): int
+    {
+        $enqueuedMessagesCount = 0;
+        $lastEnqueuedStoredEvent = null;
+
+        $storedEventsToEnqueue = $this->getStoredEventsToEnqueue($topicName);
+        if (0 === count($storedEventsToEnqueue)) {
+            return $enqueuedMessagesCount;
+        }
+
+        $producer = $this->createProducer();
+        $topic = $this->createTopic($topicName);
+
+        try {
+            foreach ($storedEventsToEnqueue as $storedEvent) {
+                $message = $this->createMessage($storedEvent);
+                $producer->send($topic, $message);
+                $enqueuedMessagesCount = $enqueuedMessagesCount + 1;
+                $lastEnqueuedStoredEvent = $storedEvent;
+            }
+        } catch (\Interop\Queue\Exception $e) {
+            throw new FailedToEnqueueStoredEventException($e);
+        } finally {
+            if (null !== $lastEnqueuedStoredEvent) {
+                $this->enqueuedStoredEventTrackerStore
+                    ->trackLastEnqueuedStoredEvent($topicName, $lastEnqueuedStoredEvent);
+            }
+        }
+
+        return $enqueuedMessagesCount;
+    }
+
+    /**
+     * @param string $topicName
+     * @return StoredEvent[]
+     */
+    private function getStoredEventsToEnqueue(string $topicName): array
+    {
+        return $this->eventStore->storedEventsSince(
+            $this->enqueuedStoredEventTrackerStore->lastEnqueuedStoredEventId($topicName)
+        );
+    }
+
+    /**
+     * @return PsrProducer
+     */
+    protected function createProducer(): PsrProducer
+    {
+        $producer = $this->context->createProducer();
+
+        return $producer;
+    }
+
+    /**
+     * @param string $topicName
+     * @return PsrTopic
+     */
+    protected function createTopic(string $topicName): PsrTopic
+    {
+        $topic = $this->context->createTopic($topicName);
+        $topic = $this->configureTopic($topic);
+
+        return $topic;
     }
 
     /**
      * @param PsrTopic $topic
-     * @return int
-     * @throws FailedToEnqueueStoredEventException
+     * @return PsrTopic
      */
-    public function execute(PsrTopic $topic): int
+    protected function configureTopic(PsrTopic $topic): PsrTopic
     {
-        $publishedMessagesCount = 0;
-        $lastPublishedStoredEvent = null;
-
-        $storedEvents = $this->eventStore->storedEventsSince(
-            $this->publishedStoredEventTrackerStore->lastPublishedStoredEventId($topic->getTopicName())
-        );
-        if (0 === count($storedEvents)) {
-            return $publishedMessagesCount;
-        }
-
-        try {
-            foreach ($storedEvents as $storedEvent) {
-                $this->context->createProducer()->send($topic, $this->createMessage($storedEvent));
-                $publishedMessagesCount = $publishedMessagesCount + 1;
-                $lastPublishedStoredEvent = $storedEvent;
-            }
-        } catch (Exception $e) {
-            throw new FailedToEnqueueStoredEventException($e);
-        } finally {
-            if (null !== $lastPublishedStoredEvent) {
-                $this->publishedStoredEventTrackerStore
-                    ->trackLastPublishedStoredEvent($topic->getTopicName(), $lastPublishedStoredEvent);
-            }
-        }
-
-        return $publishedMessagesCount;
+        return $topic;
     }
 
     /**
@@ -92,7 +136,19 @@ class EnqueueStoredEventsService
      */
     protected function createMessage(StoredEvent $storedEvent): PsrMessage
     {
-        return  $this->context->createMessage($this->serializer()->serialize($storedEvent, 'json'));
+        $message = $this->context->createMessage($this->serializer()->serialize($storedEvent, 'json'));
+        $message = $this->configureMessage($message);
+
+        return $message;
+    }
+
+    /**
+     * @param PsrMessage $message
+     * @return PsrMessage
+     */
+    protected function configureMessage(PsrMessage $message): PsrMessage
+    {
+        return $message;
     }
 
     /**

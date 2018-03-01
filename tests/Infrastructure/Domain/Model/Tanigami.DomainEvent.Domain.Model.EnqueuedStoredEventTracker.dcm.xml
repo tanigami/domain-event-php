@@ -3,9 +3,9 @@
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           http://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
-    <entity name="Tanigami\DomainEvent\Domain\Model\PublishedStoredEventTracker" table="published_event_trackers">
+    <entity name="Tanigami\DomainEvent\Domain\Model\EnqueuedStoredEventTracker" table="enqueued_event_trackers">
         <id name="id" type="integer"><generator strategy="AUTO"/></id>
         <field name="topic"/>
-        <field name="lastPublishedStoredEventId" type="bigint" />
+        <field name="lastEnqueuedStoredEventId" type="bigint" />
     </entity>
 </doctrine-mapping>

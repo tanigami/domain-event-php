@@ -6,7 +6,7 @@
     <entity name="Tanigami\DomainEvent\Domain\Model\StoredEvent" table="events">
         <id name="id" type="integer"><generator strategy="AUTO"/></id>
         <field name="name"/>
-        <field name="body"/>
+        <field name="body" type="text"/>
         <field name="occurredAt" type="datetime_immutable"/>
     </entity>
 </doctrine-mapping>

@@ -7,11 +7,11 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use PHPUnit\Framework\TestCase;
 use Tanigami\DomainEvent\Domain\Model\FakeDomainEvent;
-use Tanigami\DomainEvent\Domain\Model\PublishedStoredEventTracker;
-use Tanigami\DomainEvent\Domain\Model\PublishedStoredEventTrackerStore;
+use Tanigami\DomainEvent\Domain\Model\EnqueuedStoredEventTracker;
+use Tanigami\DomainEvent\Domain\Model\EnqueuedStoredEventTrackerStore;
 use Tanigami\DomainEvent\Domain\Model\StoredEvent;
 
-class DoctrinePublishedStoredEventTrackerStoreTest extends TestCase
+class DoctrineEnqueuedStoredEventTrackerStoreTest extends TestCase
 {
     /**
      * @var EntityManager
@@ -19,9 +19,9 @@ class DoctrinePublishedStoredEventTrackerStoreTest extends TestCase
     private $entityManager;
 
     /**
-     * @var PublishedStoredEventTrackerStore
+     * @var EnqueuedStoredEventTrackerStore
      */
-    private $publishedStoredEventTrackerStore;
+    private $enqueuedStoredEventTrackerStore;
 
     /**
      * @var DoctrineEventStore
@@ -32,11 +32,11 @@ class DoctrinePublishedStoredEventTrackerStoreTest extends TestCase
     {
         $this->entityManager = $this->initEntityManager();
         $this->initSchema($this->entityManager);
-        $this->publishedStoredEventTrackerStore = $this->createPublishedStoredEventTrackerStore();
+        $this->enqueuedStoredEventTrackerStore = $this->createEnqueuedStoredEventTrackerStore();
         $this->eventStore = $this->createEventStore();
     }
 
-    public function testTrackLastPublishedStoredEvent()
+    public function testTrackLastEnqueuedStoredEvent()
     {
         $this->eventStore->append(new FakeDomainEvent('EVENT1'));
         $this->eventStore->append(new FakeDomainEvent('EVENT2'));
@@ -46,23 +46,23 @@ class DoctrinePublishedStoredEventTrackerStoreTest extends TestCase
         $storedEvents = $this->eventStore->storedEventsSince(null);
 
         foreach ($storedEvents as $storedEvent) {
-            $this->publishedStoredEventTrackerStore->trackLastPublishedStoredEvent(
+            $this->enqueuedStoredEventTrackerStore->trackLastEnqueuedStoredEvent(
                 'TOPIC_NAME',
                 $storedEvent
             );
             $this->entityManager->flush();
         }
 
-        $id = $this->publishedStoredEventTrackerStore->lastPublishedStoredEventId('TOPIC_NAME');
+        $id = $this->enqueuedStoredEventTrackerStore->lastEnqueuedStoredEventId('TOPIC_NAME');
 
         $this->assertSame(3, $id);
     }
 
-    private function createPublishedStoredEventTrackerStore()
+    private function createEnqueuedStoredEventTrackerStore()
     {
-        return new DoctrinePublishedStoredEventTrackerStore(
+        return new DoctrineEnqueuedStoredEventTrackerStore(
             $this->entityManager,
-            $this->entityManager->getClassMetaData(PublishedStoredEventTracker::class)
+            $this->entityManager->getClassMetaData(EnqueuedStoredEventTracker::class)
         );
     }
 
@@ -86,7 +86,7 @@ class DoctrinePublishedStoredEventTrackerStoreTest extends TestCase
         $tool = new SchemaTool($entityManager);
         $tool->createSchema([
             $entityManager->getClassMetadata(StoredEvent::class),
-            $entityManager->getClassMetadata(PublishedStoredEventTracker::class),
+            $entityManager->getClassMetadata(EnqueuedStoredEventTracker::class),
         ]);
     }
 

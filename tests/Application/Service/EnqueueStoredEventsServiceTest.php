@@ -12,23 +12,22 @@ use Interop\Queue\PsrMessage;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Tanigami\DomainEvent\Domain\Model\EventStore;
-use Tanigami\DomainEvent\Domain\Model\PublishedStoredEventTrackerStore;
+use Tanigami\DomainEvent\Domain\Model\EnqueuedStoredEventTrackerStore;
 use Tanigami\DomainEvent\Domain\Model\StoredEvent;
 
 class EnqueueStoredEventsServiceTest extends TestCase
 {
-    public function testItReturnsZeroIfNoUnpublishedStoredEventsFound()
+    public function testItReturnsZeroIfNoStoredEventsToEnqueue()
     {
         $context = new NullContext;
         $eventStore = Mockery::mock(EventStore::class);
         $eventStore->shouldReceive(['storedEventsSince' => []]);
-        $publishedMessageTrackerStore = Mockery::mock(PublishedStoredEventTrackerStore::class);
-        $publishedMessageTrackerStore->shouldReceive(['lastPublishedStoredEventId' => 0]);
-        $topic = new NullTopic('');
+        $enqueuedStoredEventTrackerStore = Mockery::mock(EnqueuedStoredEventTrackerStore::class);
+        $enqueuedStoredEventTrackerStore->shouldReceive(['lastEnqueuedStoredEventId' => 0]);
 
-        $service = new EnqueueStoredEventsService($context, $eventStore, $publishedMessageTrackerStore);
+        $service = new EnqueueStoredEventsService($context, $eventStore, $enqueuedStoredEventTrackerStore);
 
-        $this->assertSame(0, $service->execute($topic));
+        $this->assertSame(0, $service->execute('topic_name'));
     }
 
     public function testEnqueueThreeStoredEvents()
@@ -44,24 +43,23 @@ class EnqueueStoredEventsServiceTest extends TestCase
         $eventStore->shouldReceive([
             'storedEventsSince' => $storedEvents,
         ]);
-        $publishedMessageTrackerStore = Mockery::mock(PublishedStoredEventTrackerStore::class);
-        $publishedMessageTrackerStore
-            ->shouldReceive(['lastPublishedStoredEventId' => 0])
-            ->shouldReceive('trackLastPublishedStoredEvent')
+        $enqueuedMessageTrackerStore = Mockery::mock(EnqueuedStoredEventTrackerStore::class);
+        $enqueuedMessageTrackerStore
+            ->shouldReceive(['lastEnqueuedStoredEventId' => 0])
+            ->shouldReceive('trackLastEnqueuedStoredEvent')
             ->once()
             ->withArgs([
                 Mockery::on(function (string $topic) {
-                    return 'NOTHING' === $topic;
+                    return 'TOPIC_NAME' === $topic;
                 }),
                 Mockery::on(function (StoredEvent $storedEvent) {
                     return 'EVENT2' === $storedEvent->name();
                 })
             ]);
-        $topic = new NullTopic('NOTHING');
 
-        $service = new EnqueueStoredEventsService($context, $eventStore, $publishedMessageTrackerStore);
+        $service = new EnqueueStoredEventsService($context, $eventStore, $enqueuedMessageTrackerStore);
 
-        $this->assertSame(2, $service->execute($topic));
+        $this->assertSame(2, $service->execute('TOPIC_NAME'));
     }
 
     /**
@@ -80,23 +78,22 @@ class EnqueueStoredEventsServiceTest extends TestCase
         $eventStore->shouldReceive([
             'storedEventsSince' => $storedEvents,
         ]);
-        $publishedMessageTrackerStore = Mockery::mock(PublishedStoredEventTrackerStore::class);
-        $publishedMessageTrackerStore
-            ->shouldReceive(['lastPublishedStoredEventId' => 0])
-            ->shouldReceive('trackLastPublishedStoredEvent')
+        $enqueuedStoredEventTrackerStore = Mockery::mock(EnqueuedStoredEventTrackerStore::class);
+        $enqueuedStoredEventTrackerStore
+            ->shouldReceive(['lastEnqueuedStoredEventId' => 0])
+            ->shouldReceive('trackLastEnqueuedStoredEvent')
             ->once()
             ->withArgs([
                 Mockery::on(function (string $topic) {
-                    return 'NOTHING' === $topic;
+                    return 'TOPIC_NAME' === $topic;
                 }),
                 Mockery::on(function (StoredEvent $storedEvent) {
                     return 'EVENT1' === $storedEvent->name();
                 })
             ]);
-        $topic = new NullTopic('NOTHING');
 
-        $service = new EnqueueStoredEventsService($context, $eventStore, $publishedMessageTrackerStore);
-        $service->execute($topic);
+        $service = new EnqueueStoredEventsService($context, $eventStore, $enqueuedStoredEventTrackerStore);
+        $service->execute('TOPIC_NAME');
     }
 }
 
